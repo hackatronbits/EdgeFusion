@@ -1,14 +1,19 @@
 import os
 import re
 import shutil
-import spacy
 import pytesseract
+import nltk
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader
 from fpdf import FPDF
 from pdf2image import convert_from_path
 from PIL import Image, ImageDraw
+
+# NLTK setup
+from nltk import word_tokenize, pos_tag
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 
 # Flask app config
 app = Flask(__name__)
@@ -18,9 +23,6 @@ app.config['STATIC_UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 # Ensure folders exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['STATIC_UPLOAD_FOLDER'], exist_ok=True)
-
-# Load SpaCy model
-nlp = spacy.load("en_core_web_sm")
 
 # Regex patterns
 regex_patterns = {
@@ -36,15 +38,22 @@ regex_patterns = {
     "location": r"\b\d{1,3}\.\d{1,6},\s?\d{1,3}\.\d{1,6}\b"
 }
 
+# Detect names using NLTK
+def detect_names_nltk(text):
+    words = word_tokenize(text)
+    tagged = pos_tag(words)
+    names = [word for word, tag in tagged if tag == 'NNP']
+    return names
+
 # Redaction logic
 def apply_redaction(text, redaction_type):
     redacted = text
-    doc = nlp(text)
 
     if redaction_type == "default":
-        for ent in doc.ents:
-            if ent.label_ in ['PERSON', 'GPE', 'LOC', 'ORG']:
-                redacted = redacted.replace(ent.text, '[REDACTED]')
+        names = detect_names_nltk(text)
+        for name in set(names):
+            redacted = re.sub(rf'\b{name}\b', '[REDACTED]', redacted)
+
         for _, pattern in regex_patterns.items():
             redacted = re.sub(pattern, '[REDACTED]', redacted, flags=re.IGNORECASE)
 
@@ -52,14 +61,12 @@ def apply_redaction(text, redaction_type):
         redacted = re.sub(regex_patterns[redaction_type], '[REDACTED]', redacted, flags=re.IGNORECASE)
 
     elif redaction_type == "name":
-        for ent in doc.ents:
-            if ent.label_ == "PERSON":
-                redacted = redacted.replace(ent.text, '[REDACTED]')
+        names = detect_names_nltk(text)
+        for name in set(names):
+            redacted = re.sub(rf'\b{name}\b', '[REDACTED]', redacted)
 
     elif redaction_type == "location":
-        for ent in doc.ents:
-            if ent.label_ in ["GPE", "LOC"]:
-                redacted = redacted.replace(ent.text, '[REDACTED]')
+        pass  # Placeholder for location redaction logic
 
     elif redaction_type == "govtid":
         for key in ['aadhar', 'pan', 'voter']:
