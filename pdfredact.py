@@ -40,3 +40,4 @@ def redact_pii(input_pdf_path):
     doc.close()
 
     return redacted_path
+
