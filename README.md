@@ -43,6 +43,11 @@ source venv/Scripts/activate
 pip install -r requirements.txt
 ```
 ---
+### To run the project:
+```
+python main.py
+```
+---
 # Git Workflow
 #### 1. Sync the latest changes before you start working
 ```

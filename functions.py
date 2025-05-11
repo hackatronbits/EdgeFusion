@@ -12,7 +12,7 @@ def common(text):
     for ent in doc.ents:
         if ent.label_ in pii_labels:
             redacted_text = redacted_text.replace(ent.text, f"[{ent.label_}]") 
-    return   redacted_text
+    return redacted_text
 
 
 # EMAIL REDACTION FUNCTION
