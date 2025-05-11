@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="pdf/css" media="screen" href="main.css" />
 
     <style type="pdf/css">
-	    .main-section{
+    .main-section{
             margin:0 auto;
             padding: 20px;
             margin-top: 100px;
@@ -42,9 +42,17 @@
 					<a class="nav-link" href="{{ url_for('downloads')}}">Downloads</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="about.html">About</a>
+					<a class="nav-link" href="about.html">Regulations</a>
 				</li>
 			</ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="btn btn-outline-light btn-sm mr-2" href="login.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-success btn-sm" href="signup.html">Signup</a>
+                </li>
+            </ul>
 		</div>
 	</nav>
 	<br />
@@ -59,13 +67,18 @@
 	</div>
 	<br />
 	<br />
+    <br><br>
 	<div class="container">
 		<form method="POST" action="{{ url_for('uploads')}}" enctype=multipart/form-data>
-			<div class="main-section">
-				<h5>Drag and Drop</h5>
-				<input type="file" name="file" class="file-upload" required="true">
-			</div>
+            <div class="main-section">
+                <label class="drop-box file-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><strong>Drag & Drop</strong> your PDF file here</p>
+                    <input type="file" name="file" class="file-upload" required>
+                </label>
+            </div>
 			<br>
+            <br><br><br>
             <select class="form-control" name="taskoption">
                 <option selected>Select Regulation</option>
                 <option value="default">Default</option>
