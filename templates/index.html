@@ -50,7 +50,7 @@
 					<a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="{{ url_for('downloads')}}">Downloads</a>
+					<a class="nav-link" href="downloads.html">Downloads</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="about.html">Regulations</a>
@@ -80,7 +80,7 @@
 	<br />
     <br><br>
 	<div class="container">
-		<form method="POST" action="{{ url_for('uploads')}}" enctype=multipart/form-data>
+		<form method="POST" action="upload_file" enctype=multipart/form-data>
             <div class="main-section" style="border: 3px solid black; height: 30rem; width: 70rem; display: flex; align-items: center; justify-content: center;">
                 <label class="drop-box file-label">
                     <i class="fas fa-cloud-upload-alt"></i>
