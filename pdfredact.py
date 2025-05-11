@@ -41,14 +41,33 @@ patterns = [
 ]
 
 
-# Example redaction logic
-doc = fitz.open("form.pdf")
-for page in doc:
-    text = page.get_text()
-    for pattern in patterns:
-        for match in re.finditer(pattern, text):
-            for rect in page.search_for(match.group()):
-                page.add_redact_annot(rect, fill=(0, 0, 0))  # Black out
-    page.apply_redactions()
+# # Example redaction logic
+# doc = fitz.open("form.pdf")
+# for page in doc:
+#     text = page.get_text()
+#     for pattern in patterns:
+#         for match in re.finditer(pattern, text):
+#             for rect in page.search_for(match.group()):
+#                 page.add_redact_annot(rect, fill=(0, 0, 0))  # Black out
+#     page.apply_redactions()
 
-doc.save("finnall_redacted.pdf")
+# doc.save("finnall_redacted.pdf")
+
+
+def redact_pii(filepath):
+    """
+    Redacts PII from the given PDF file and saves the redacted file.
+    :param filepath: Path to the input PDF file
+    :return: Path to the redacted PDF file
+    """
+    doc = fitz.open(filepath)
+    for page in doc:
+        text = page.get_text()
+        for pattern in patterns:
+            for match in re.finditer(pattern, text):
+                for rect in page.search_for(match.group()):
+                    page.add_redact_annot(rect, fill=(0, 0, 0))  # Black out
+        page.apply_redactions()
+    redacted_filepath = filepath.replace(".pdf", "_redacted.pdf")
+    doc.save(redacted_filepath)
+    return redacted_filepath
