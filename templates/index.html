@@ -14,7 +14,18 @@
             margin-top: 100px;
             background-color: #fff;
             box-shadow: 0px 0px 20px #c1c1c1;
-        }
+    }
+    footer {
+            background-color: #1e1e2f;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+    }
+
+    footer p {
+            margin: 0;
+            font-size: 14px;
+    }
 </style>
   
     <!-- Font Awesome -->
@@ -58,7 +69,7 @@
 	<br />
 	<br />
 	
-	<div class="jumbotron" style="background: #4F6D7A;color:#fff">
+	<div class="jumbotron" style="background: #1e1e2f;color:#fff">
 		<div class="container">
 			<h2 class="display-3">Secure PDF Redactor</h2>
 			<p>Using Spacy, Regex and Pytesseract</p>
@@ -70,7 +81,7 @@
     <br><br>
 	<div class="container">
 		<form method="POST" action="{{ url_for('uploads')}}" enctype=multipart/form-data>
-            <div class="main-section">
+            <div class="main-section" style="border: 3px solid black; height: 30rem; width: 70rem; display: flex; align-items: center; justify-content: center;">
                 <label class="drop-box file-label">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <p><strong>Drag & Drop</strong> your PDF file here</p>
@@ -79,18 +90,41 @@
             </div>
 			<br>
             <br><br><br>
-            <select class="form-control" name="taskoption">
-                <option selected>Select Regulation</option>
-                <option value="default">Default</option>
-				<option value="ccpa">CCPA</option>
-                <option value="gdpr">GDPR</option>
-                <option value="hipaa">HIPAA</option>
-			</select>
+            <h2>Choose Redaction Type</h2>
+  <label for="dataType">Select Data Type:</label>
+  <select id="dataType" name="dataType" required>
+    <option selected disabled>Select Redaction Type</option>
+    <option value="default">Default (Redact All)</option>
+    <option value="name">Name</option>
+    <option value="email">Email</option>
+    <option value="phone">Phone</option>
+    <option value="address">Address</option>
+    <option value="ssn">SSN/ID</option>
+    <option value="ip">IP</option>
+    <option value="biometric">Biometric</option>
+    <option value="location">Location</option>
+    <option value="financial">Financial (Bank A/C, Credit Card, Transaction ID)</option>
+    <option value="photos">Photos</option>
+    <option value="browsing">Browsing/Activity</option>
+    <option value="govtid">Govt ID (Aadhaar, PAN, Voter ID)</option>
+  </select>
 			<br>
-			<button type="submit" class="btn btn-info"><i class="fa fa-database"></i> Submit</button>
+			<button type="submit" class="btn btn-info" onclick="handleSelection()"><i class="fa fa-database"></i> Submit</button>
 		</form>
 	</div>
-	
+    <br />
+	<br />
+
+    <footer style="background-color: #1e1e2f; color: #ffffff; padding: 20px 0; text-align: center;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <p style="margin: 0; font-size: 14px;">&copy; <span id="year"></span> EdgeFusion. All rights reserved.</p>
+        </div>
+    </footer>
+
+	<!-- Auto Generated Date for footer -->
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
 	<!-- JQuery -->
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<!-- Bootstrap tool-->
