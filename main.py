@@ -17,10 +17,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def home():
     return render_template("index.html")
 
-# Downloads page
-@app.route("/downloads")
-def downloads():
-    return render_template("downloads.html")
+
 
 # Handle file upload and redaction
 @app.route('/upload_file', methods=['POST'])
