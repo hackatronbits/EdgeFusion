@@ -27,7 +27,7 @@ def downloads():
 @app.route('/uploads', methods=["GET", "POST"])
 def uploads():
     if request.method == "POST":
-        pdf_file = request.files.get("pdf")
+        pdf_file = request.files.get("file")
         
         if pdf_file and pdf_file.filename !="":
             filename = secure_filename(pdf_file.filename)
