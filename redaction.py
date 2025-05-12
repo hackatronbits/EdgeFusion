@@ -172,5 +172,58 @@ def redact_pdf_with_pymupdf(input_pdf_path):
     print(f"[SUCCESS] Redacted PDF saved as: {output_pdf_path}")
 
 
+def redact_pii(filepath, redaction_type="default", custom_types=None):
+    if custom_types is None:
+        custom_types = []
+
+    pdf_path = Path(filepath)
+    output_pdf_path = pdf_path.with_name(pdf_path.stem + "_redacted.pdf")
+
+    doc = fitz.open(str(pdf_path))
+    redacted_images = []
+
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        pix = page.get_pixmap(dpi=200)
+        image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+
+        data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+        full_text = " ".join(data["text"])
+        redacted_text = full_text
+
+        if redaction_type == "default":
+            redacted_text = redact_person_names(redacted_text)
+            redacted_text = redact_phone_numbers(redacted_text)
+            redacted_text = redact_email_addresses(redacted_text)
+            redacted_text = redact_addresses(redacted_text)
+            redacted_text = redact_aadhaar(redacted_text)
+            redacted_text = redact_pan(redacted_text)
+        else:
+            if "name" in custom_types:
+                redacted_text = redact_person_names(redacted_text)
+            if "phone" in custom_types:
+                redacted_text = redact_phone_numbers(redacted_text)
+            if "email" in custom_types:
+                redacted_text = redact_email_addresses(redacted_text)
+            if "address" in custom_types:
+                redacted_text = redact_addresses(redacted_text)
+            if "govtid" in custom_types or "ssn" in custom_types:
+                redacted_text = redact_aadhaar(redacted_text)
+                redacted_text = redact_pan(redacted_text)
+
+        # Draw redactions on the image
+        draw = ImageDraw.Draw(image)
+        for i, word in enumerate(data["text"]):
+            word_clean = word.strip()
+            if word_clean != "" and word_clean in full_text and word_clean not in redacted_text:
+                x, y, w, h = data["left"][i], data["top"][i], data["width"][i], data["height"][i]
+                draw.rectangle([x, y, x + w, y + h], fill="black")
+
+        redacted_images.append(image.convert("RGB"))
+
+    redacted_images[0].save(output_pdf_path, save_all=True, append_images=redacted_images[1:])
+    return str(output_pdf_path)
+
+
 if __name__ == "__main__":
     redact_pdf_with_pymupdf("indian_pii_document.pdf")
