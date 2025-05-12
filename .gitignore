@@ -4,3 +4,5 @@ venv
 uploads
 uploads/*
 uploads/
+__pycache__/
+__pychace__
