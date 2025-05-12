@@ -207,8 +207,9 @@ def redact_pii(filepath, redaction_type="default", custom_types=None):
                 redacted_text = redact_email_addresses(redacted_text)
             if "address" in custom_types:
                 redacted_text = redact_addresses(redacted_text)
-            if "govtid" in custom_types or "ssn" in custom_types:
+            if "aadhar" in custom_types in custom_types:
                 redacted_text = redact_aadhaar(redacted_text)
+            if "pan" in custom_types:
                 redacted_text = redact_pan(redacted_text)
 
         # Draw redactions on the image
