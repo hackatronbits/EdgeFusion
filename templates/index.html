@@ -1,87 +1,92 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>Secure PII</title>
-    <meta charset="utf-8" />
+	<title> Secure PII </title>
+	<meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
-    <!-- Bootstrap -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
-    <!-- MDB -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.3/css/mdb.min.css" rel="stylesheet">
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-
-    <style>
-        .main-section {
-            margin: 0 auto;
+    <style type="text/css">
+    .main-section{
+            margin:0 auto;
             padding: 20px;
             margin-top: 100px;
             background-color: #fff;
             box-shadow: 0px 0px 20px #c1c1c1;
-        }
-
-        footer {
+    }
+    footer {
             background-color: #1e1e2f;
             color: #ffffff;
             padding: 20px 0;
             text-align: center;
-        }
+    }
 
-        .content-wrapper {
-            padding: 30px;
-        }
+    footer p {
+            margin: 0;
+            font-size: 14px;
+    }
+</style>
+  
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+    <!-- Bootstrap-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- MDB-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.3/css/mdb.min.css" rel="stylesheet">
 
-        textarea {
-            width: 100%;
-            height: 200px;
-            padding: 10px;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-    </style>
 </head>
-
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="/">EdgeFusion</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
+	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+		<a class="navbar-brand" href="index.html">EdgeFusion</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+			aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+	
+		<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+				</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:5001/">Gemini Tool</a>
+                </li>
+			</ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="btn btn-outline-light btn-sm mr-2" href="login.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-success btn-sm" href="signup.html">Signup</a>
+                </li>
             </ul>
+		</div>
+	</nav>
+	<br />
+	<br />
+	
+	<div class="jumbotron" style="background: #1e1e2f;color:#fff">
+		<div class="container">
+			<h2 class="display-3">Secure PDF Redactor</h2>
+			<p>Using Spacy, Regex and Pytesseract</p>
+			<p><a class="btn btn-success waves-effect btn-lg" href="index.html" role="button">Refresh &raquo;</a></p>
+		</div>
+	</div>
+	<br />
+	<br />
+    <br><br>
+	<div class="container">
+		<form method="POST" action="upload_file" enctype="multipart/form-data">
+            <div class="main-section" style="border: 3px solid black; height: 30rem; width: 70rem; display: flex; align-items: center; justify-content: center;">
+                <label class="drop-box file-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><strong>Drag & Drop</strong> your PDF file here</p>
+                    <input type="file" name="file" class="file-upload" required>
+                </label>
             </div>
-            </nav>
-
-    <!-- Jumbotron -->
-    <div class="jumbotron" style="background: #1e1e2f;color:#fff;margin-top: 60px;">
-        <div class="container">
-            <h2 class="display-4">Secure PDF Redactor</h2>
-            <p>Powered by Spacy, Regex, Pytesseract & Gemini AI</p>
-        </div>
-    </div>
-
-    <div class="container content-wrapper">
-
-        <!-- Gemini PDF Text Extraction & Analysis -->
-        <h3 class="mt-4">PII Detection via Gemini</h3>
-        <input type="file" id="pdfUpload" accept="application/pdf" />
-        <button onclick="extractPdfText()" class="btn btn-secondary btn-sm">Extract PDF Text</button>
-
-        <textarea id="pdfText" placeholder="Extracted PDF text will appear here..."></textarea>
-
-        <button onclick="analyzeWithGemini()" class="btn btn-primary btn-sm">Analyze with Gemini</button>
-
-        <h5 class="mt-3">Gemini Response:</h5>
-        <pre id="geminiResponse" style="white-space: pre-wrap; background-color: #f1f1f1; padding: 10px;"></pre>
-        <br>
+			<br>
+            <br><br><br>
             <label for="dataType">Select Redaction Type:</label>
             <select id="dataType" name="dataType" onchange="toggleCustomOptions()" required>
                 <option selected disabled>Select Redaction Type</option>
@@ -104,62 +109,41 @@
                 <label><input type="checkbox" name="custom_types" value="govtid"> Govt ID</label><br>
             </div>
 
-    <footer>
-        <p>&copy; <span id="year"></span> EdgeFusion. All rights reserved.</p>
+			<button type="submit" class="btn btn-info" onclick="handleSelection()"><i class="fa fa-database"></i> Submit</button>
+		</form>
+	</div>
+    <br />
+	<br />
+
+    <footer style="background-color: #1e1e2f; color: #ffffff; padding: 20px 0; text-align: center;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <p style="margin: 0; font-size: 14px;">&copy; <span id="year"></span> EdgeFusion. All rights reserved.</p>
+        </div>
     </footer>
 
+	<!-- Auto Generated Date for footer -->
     <script>
         document.getElementById("year").textContent = new Date().getFullYear();
-
+    </script>
+	<!-- JQuery -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<!-- Bootstrap tool-->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+	<!-- Bootstrap-->
+	<script type="text/javascript"
+		src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	<!-- MDB -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.3/js/mdb.min.js"></script>
+    <script>
         function toggleCustomOptions() {
-            const value = document.getElementById("dataType").value;
-            // Custom section should exist with id="custom-options" if used
+            const dataType = document.getElementById("dataType").value;
             const customOptions = document.getElementById("custom-options");
-            if (customOptions) {
-            customOptions.style.display = value === "custom" ? "block" : "none";
-        }
-        }
-
-        async function extractPdfText() {
-            const fileInput = document.getElementById("pdfUpload");
-            const file = fileInput.files[0];
-            if (!file || file.type !== "application/pdf") {
-                alert("Please upload a valid PDF file.");
-                return;
+            if (dataType === "custom") {
+                customOptions.style.display = "block";
+            } else {
+                customOptions.style.display = "none";
             }
-
-            const reader = new FileReader();
-            reader.onload = async function () {
-                const typedarray = new Uint8Array(this.result);
-                const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                let textContent = "";
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const text = await page.getTextContent();
-                    textContent += text.items.map(item => item.str).join(" ") + "\n\n";
-                }
-                document.getElementById("pdfText").value = textContent.trim();
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        async function analyzeWithGemini() {
-            const text = document.getElementById("pdfText").value;
-            const response = await fetch("/gemini", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text })
-            });
-            const data = await response.json();
-            document.getElementById("geminiResponse").textContent = data.response || data.error;
         }
     </script>
-
-    <!-- JS Dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.3/js/mdb.min.js"></script>
 </body>
-
 </html>
