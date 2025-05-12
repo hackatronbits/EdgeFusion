@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os
 from werkzeug.utils import secure_filename
-from redaction import redact_pii
+from pdfredact import redact_pii
 
 app = Flask(__name__)
 
@@ -14,6 +14,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def home():
     return render_template("index.html")
 
+@app.route("/downloads")
+def downloads():
+    return render_template("downloads.html")
 
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
@@ -27,15 +30,7 @@ def upload_file():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        # redacted_file_path = redact_pii(filepath)
-
-
-        # Get user redaction choice
-        redaction_type = request.form.get('dataType')
-        custom_types = request.form.getlist('custom_types') if redaction_type == "custom" else []
-
-        # Pass selection to redaction function
-        redacted_file_path = redact_pii(filepath, redaction_type=redaction_type, custom_types=custom_types)
+        redacted_file_path = redact_pii(filepath)
         redacted_filename = os.path.basename(redacted_file_path)
         return redirect(url_for('download_file', filename=redacted_filename))
 
