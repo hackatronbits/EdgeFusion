@@ -6,6 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
     <!-- Bootstrap -->
@@ -57,8 +58,8 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
             </ul>
-            </div>
-            </nav>
+        </div>
+    </nav>
 
     <!-- Jumbotron -->
     <div class="jumbotron" style="background: #1e1e2f;color:#fff;margin-top: 60px;">
@@ -71,95 +72,148 @@
     <div class="container content-wrapper">
 
         <!-- Gemini PDF Text Extraction & Analysis -->
-        <h3 class="mt-4">PII Detection via Gemini</h3>
+        <h3 class="mt-4">PII Detection</h3>
         <input type="file" id="pdfUpload" accept="application/pdf" />
         <button onclick="extractPdfText()" class="btn btn-secondary btn-sm">Extract PDF Text</button>
 
         <textarea id="pdfText" placeholder="Extracted PDF text will appear here..."></textarea>
 
-        <button onclick="analyzeWithGemini()" class="btn btn-primary btn-sm">Analyze with Gemini</button>
+        <button onclick="analyzeWithGemini()" class="btn btn-primary btn-sm">Analyze</button>
 
         <h5 class="mt-3">Gemini Response:</h5>
         <pre id="geminiResponse" style="white-space: pre-wrap; background-color: #f1f1f1; padding: 10px;"></pre>
-        <br>
-            <label for="dataType">Select Redaction Type:</label>
-            <select id="dataType" name="dataType" onchange="toggleCustomOptions()" required>
-                <option selected disabled>Select Redaction Type</option>
-                <option value="default">Default (Redact All)</option>
-                <option value="custom">Customize</option>
-            </select>
-            
-            <div id="custom-options" style="display: none; margin-top: 10px;">
-                <label><input type="checkbox" name="custom_types" value="name"> Name</label><br>
-                <label><input type="checkbox" name="custom_types" value="email"> Email</label><br>
-                <label><input type="checkbox" name="custom_types" value="phone"> Phone</label><br>
-                <label><input type="checkbox" name="custom_types" value="address"> Address</label><br>
-                <label><input type="checkbox" name="custom_types" value="ssn"> SSN/ID</label><br>
-                <label><input type="checkbox" name="custom_types" value="ip"> IP</label><br>
-                <label><input type="checkbox" name="custom_types" value="biometric"> Biometric</label><br>
-                <label><input type="checkbox" name="custom_types" value="location"> Location</label><br>
-                <label><input type="checkbox" name="custom_types" value="financial"> Financial</label><br>
-                <label><input type="checkbox" name="custom_types" value="photos"> Photos</label><br>
-                <label><input type="checkbox" name="custom_types" value="browsing"> Browsing/Activity</label><br>
-                <label><input type="checkbox" name="custom_types" value="govtid"> Govt ID</label><br>
-            </div>
+        <button onclick="downloadPIIAsPDF()" class="btn btn-success btn-sm">Download PDF</button>
+        <button onclick="downloadPIIAsJSON()" class="btn btn-info btn-sm">Download JSON</button>
+        <br><br>
 
-    <footer>
-        <p>&copy; <span id="year"></span> EdgeFusion. All rights reserved.</p>
-    </footer>
+        <label for="dataType">Select Redaction Type:</label>
+        <select id="dataType" name="dataType" onchange="toggleCustomOptions()" required>
+            <option selected disabled>Select Redaction Type</option>
+            <option value="default">Default (Redact All)</option>
+            <option value="custom">Customize</option>
+        </select>
 
-    <script>
-        document.getElementById("year").textContent = new Date().getFullYear();
+        <div id="custom-options" style="display: none; margin-top: 10px;">
+            <label><input type="checkbox" name="custom_types" value="name"> Name</label><br>
+            <label><input type="checkbox" name="custom_types" value="email"> Email</label><br>
+            <label><input type="checkbox" name="custom_types" value="phone"> Phone</label><br>
+            <label><input type="checkbox" name="custom_types" value="address"> Address</label><br>
+            <label><input type="checkbox" name="custom_types" value="ssn"> SSN/ID</label><br>
+            <label><input type="checkbox" name="custom_types" value="ip"> IP</label><br>
+            <label><input type="checkbox" name="custom_types" value="biometric"> Biometric</label><br>
+            <label><input type="checkbox" name="custom_types" value="location"> Location</label><br>
+            <label><input type="checkbox" name="custom_types" value="financial"> Financial</label><br>
+            <label><input type="checkbox" name="custom_types" value="photos"> Photos</label><br>
+            <label><input type="checkbox" name="custom_types" value="browsing"> Browsing/Activity</label><br>
+            <label><input type="checkbox" name="custom_types" value="govtid"> Govt ID</label><br>
+        </div>
 
-        function toggleCustomOptions() {
-            const value = document.getElementById("dataType").value;
-            // Custom section should exist with id="custom-options" if used
-            const customOptions = document.getElementById("custom-options");
-            if (customOptions) {
-            customOptions.style.display = value === "custom" ? "block" : "none";
-        }
-        }
+        <footer>
+            <p>&copy; <span id="year"></span> EdgeFusion. All rights reserved.</p>
+        </footer>
 
-        async function extractPdfText() {
-            const fileInput = document.getElementById("pdfUpload");
-            const file = fileInput.files[0];
-            if (!file || file.type !== "application/pdf") {
-                alert("Please upload a valid PDF file.");
-                return;
+        <script>
+            document.getElementById("year").textContent = new Date().getFullYear();
+
+            function toggleCustomOptions() {
+                const value = document.getElementById("dataType").value;
+                const customOptions = document.getElementById("custom-options");
+                if (customOptions) {
+                    customOptions.style.display = value === "custom" ? "block" : "none";
+                }
             }
 
-            const reader = new FileReader();
-            reader.onload = async function () {
-                const typedarray = new Uint8Array(this.result);
-                const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                let textContent = "";
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const text = await page.getTextContent();
-                    textContent += text.items.map(item => item.str).join(" ") + "\n\n";
+            async function extractPdfText() {
+                const fileInput = document.getElementById("pdfUpload");
+                const file = fileInput.files[0];
+                if (!file || file.type !== "application/pdf") {
+                    alert("Please upload a valid PDF file.");
+                    return;
                 }
-                document.getElementById("pdfText").value = textContent.trim();
-            };
-            reader.readAsArrayBuffer(file);
-        }
 
-        async function analyzeWithGemini() {
-            const text = document.getElementById("pdfText").value;
-            const response = await fetch("/gemini", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text })
-            });
-            const data = await response.json();
-            document.getElementById("geminiResponse").textContent = data.response || data.error;
-        }
-    </script>
+                const reader = new FileReader();
+                reader.onload = async function () {
+                    const typedarray = new Uint8Array(this.result);
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let textContent = "";
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const text = await page.getTextContent();
+                        textContent += text.items.map(item => item.str).join(" ") + "\n\n";
+                    }
+                    document.getElementById("pdfText").value = textContent.trim();
+                };
+                reader.readAsArrayBuffer(file);
+            }
 
-    <!-- JS Dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.3/js/mdb.min.js"></script>
+            async function analyzeWithGemini() {
+                const text = document.getElementById("pdfText").value;
+                const response = await fetch("/gemini", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text })
+                });
+                const data = await response.json();
+                const piiData = data.response || data.error;
+
+                document.getElementById("geminiResponse").textContent = piiData;
+
+                const piiJson = {};
+                const lines = piiData.split('\n');
+                for (let line of lines) {
+                    const [key, ...rest] = line.split(':');
+                    if (key && rest.length) {
+                        piiJson[key.trim().toLowerCase()] = rest.join(':').trim();
+                    }
+                }
+
+                localStorage.setItem("piiJson", JSON.stringify(piiJson));
+                populateCustomOptions(piiJson);
+            }
+
+            function populateCustomOptions(piiJson) {
+                const checkboxes = document.querySelectorAll('#custom-options input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    cb.checked = piiJson.hasOwnProperty(cb.value);
+                });
+            }
+
+            function downloadPIIAsPDF() {
+                const responseText = document.getElementById("geminiResponse").textContent.trim();
+                if (!responseText || responseText === "No response yet." || responseText.startsWith("Please enter")) {
+                    alert("No Gemini response available to download.");
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const lines = doc.splitTextToSize(responseText, 180);
+                doc.text("Gemini PII Response", 10, 10);
+                doc.text(lines, 10, 20);
+                doc.save("gemini_pii_response.pdf");
+            }
+
+            function downloadPIIAsJSON() {
+                const jsonStr = localStorage.getItem("piiJson");
+                if (!jsonStr) {
+                    alert("No structured Gemini response available.");
+                    return;
+                }
+                const blob = new Blob([jsonStr], { type: "application/json" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "gemini_pii_response.json";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        </script>
+
+        <!-- JS Dependencies -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.3/js/mdb.min.js"></script>
 </body>
 
 </html>
